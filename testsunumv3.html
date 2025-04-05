@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PİY ve BLPH | Doç. Dr. Fatih Çölkesen</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2980b9;
+            --accent-color: #e67e22;
+            --bg-color: #f0f4f8;
+            --slide-bg: #ffffff;
+            --text-color: #34495e;
+            --heading-color: #2c3e50;
+            --light-text: #7f8c8d;
+            --highlight-bg: #fff9e0;
+            --highlight-border: #f39c12;
+            --font-heading: 'Poppins', sans-serif;
+            --font-body: 'Roboto', sans-serif;
+            --base-font-size-desktop: 16px; /* Desktop temel boyut */
+            --slide-transition-duration: 0.4s; /* Slightly faster */
+            --slide-timing-function: cubic-bezier(0.25, 0.8, 0.25, 1);
+            --border-radius-medium: 10px; /* Slightly smaller radius */
+            --border-radius-large: 14px;
+            --shadow-light: 0 4px 12px rgba(0, 0, 0, 0.07);
+            --shadow-medium: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        html {
+            scroll-behavior: smooth;
+            box-sizing: border-box;
+            font-size: var(--base-font-size-desktop); /* Temel boyut */
+        }
+        *, *:before, *:after {
+            box-sizing: inherit;
+        }
+
+        body {
+            font-family: var(--font-body);
+            line-height: 1.7;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Focus Visible Styling */
+        :focus-visible {
+             outline: 3px solid var(--primary-color);
+             outline-offset: 2px;
+             border-radius: 4px;
+        }
+        .slide-nav-button:focus-visible, .control-button:focus-visible, .toc-link:focus-visible, .close-modal-btn:focus-visible {
+            outline: 3px solid var(--accent-color);
+            outline-offset: 3px;
+        }
+
+        /* --- Presentation Container --- */
+        .presentation-container {
+            position: relative;
+            width: 95%;
+            height: 90vh;
+            max-width: 1500px; /* Slightly wider max */
+            max-height: 880px;
+            background-color: var(--slide-bg);
+            border-radius: var(--border-radius-large);
+            box-shadow: var(--shadow-medium);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+             transition: width 0.3s ease, height 0.3s ease, border-radius 0.3s ease; /* Responsive geçişler */
+        }
+
+        /* --- Progress Bar --- */
+        .progress-bar-container { width: 100%; height: 6px; background-color: #e9ecef; }
+        .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent-color), #f39c12); transition: width 0.4s ease-out; border-radius: 0 3px 3px 0; }
+
+        /* --- Slides --- */
+        .slides-viewport { flex-grow: 1; position: relative; overflow: hidden; }
+        .slide {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            padding: 2rem 3rem; /* Default padding */
+            opacity: 0; visibility: hidden;
+            transform: translateX(25px); /* Start slightly right */
+            transition: opacity var(--slide-transition-duration) var(--slide-timing-function),
+                        transform var(--slide-transition-duration) var(--slide-timing-function),
+                        visibility var(--slide-transition-duration);
+            overflow-y: auto; background-color: var(--slide-bg);
+            display: flex; flex-direction: column;
+        }
+        .slide.active { opacity: 1; visibility: visible; transform: translateX(0); z-index: 10; }
+        .slide.exiting { opacity: 0; transform: translateX(-25px); z-index: 9; } /* Exit left */
+        .slide.content-slide { justify-content: flex-start; }
+
+        /* Scrollbar Styling */
+        .slide::-webkit-scrollbar { width: 10px; }
+        .slide::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        .slide::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; border: 2px solid #f1f1f1; }
+        .slide::-webkit-scrollbar-thumb:hover { background: #aaa; }
+
+
+        /* --- Slide Content Styling --- */
+        .slide h1, .slide h2, .slide h3 { font-family: var(--font-heading); color: var(--heading-color); margin-bottom: 1.2rem; font-weight: 600; }
+        .slide h1 { font-size: 2.2rem; font-weight: 700; color: var(--primary-color); text-align: center; margin-bottom: 1rem;} /* Reduced bottom margin */
+        .slide h2 { font-size: 1.8rem; border-bottom: 3px solid var(--primary-color); padding-bottom: 0.4em; display: inline-block; margin-top: 1rem; }
+        .slide h3 { font-size: 1.4rem; color: var(--secondary-color); margin-top: 1.5rem; font-weight: 600; }
+        .slide p, .slide li { font-size: 1rem; line-height: 1.75; margin-bottom: 1rem; max-width: 75ch; } /* Slightly tighter spacing */
+        .slide ul, .slide ol { padding-left: 30px; margin-bottom: 1.5em; }
+        .slide li { margin-bottom: 0.7em; }
+        .slide ul { list-style: none; padding-left: 15px; } /* Reduced padding */
+        .slide ul li { position: relative; padding-left: 20px; }
+        .slide ul li::before { content: "\f0da"; font-family: 'Font Awesome 6 Free'; font-weight: 900; position: absolute; left: 0; top: 2px; color: var(--primary-color); font-size: 1em; }
+        /* Specific multi-column list for responsiveness */
+        .multi-column-list { columns: 2; -webkit-columns: 2; -moz-columns: 2; }
+
+
+        /* Title Slide */
+        .title-slide { text-align: center; justify-content: center; }
+        .presenter-info { margin-top: 2rem; font-size: 1.1rem; color: var(--light-text); }
+        .presenter-info strong { font-weight: 700; color: var(--heading-color); display: block; font-size: 1.5rem; margin-bottom: 0.4em; }
+        .presenter-info .affiliation { font-size: 1.05rem; font-style: italic; }
+
+        /* --- Navigation Controls --- */
+        .slide-controls {
+            background-color: #f8f9fa; padding: 0.8rem 2rem; border-top: 1px solid #dee2e6;
+            display: flex; justify-content: space-between; align-items: center;
+            position: relative; z-index: 20; box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.05);
+        }
+        .slide-nav-button, .control-button {
+            background: var(--primary-color); color: white; border: none; padding: 0.7rem 1.5rem;
+            border-radius: var(--border-radius-medium); font-size: 0.9rem; font-weight: 600;
+            font-family: var(--font-heading); cursor: pointer; transition: all 0.25s ease;
+            display: inline-flex; align-items: center; box-shadow: var(--shadow-light);
+            white-space: nowrap; /* Prevent button text wrapping */
+        }
+        .control-button {
+            padding: 0.6rem 1rem; background: #fff; color: var(--secondary-color);
+            border: 1px solid #ced4da; box-shadow: none; margin: 0 0.4rem;
+        }
+        .slide-nav-button i, .control-button i { font-size: 1em; } /* Adjusted icon size */
+        .slide-nav-button:hover, .control-button:hover {
+             background-color: var(--secondary-color); color: white; transform: translateY(-2px);
+             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .control-button:hover { border-color: var(--secondary-color); }
+        .slide-nav-button:disabled { background: #adb5bd; cursor: not-allowed; transform: none; box-shadow: none; opacity: 0.6; }
+        #prev-slide i { margin-right: 0.5rem; }
+        #next-slide i { margin-left: 0.5rem; }
+        .controls-center { display: flex; align-items: center; }
+        .slide-indicator { font-size: 0.95rem; color: var(--light-text); font-weight: 500; margin: 0 1rem; }
+
+
+        /* --- Citation & Reference Styling --- */
+        .citation-link { color: var(--accent-color); text-decoration: none; font-weight: 600; cursor: pointer; padding: 1px 4px; border-radius: 4px; background-color: #fef5e7; transition: background-color 0.2s ease, color 0.2s ease; white-space: nowrap; }
+        .citation-link:hover { background-color: var(--accent-color); color: white; }
+        #reference-slide ol { list-style: none; padding-left: 0; counter-reset: ref-counter; }
+        #reference-slide li { margin-bottom: 1.1em; padding: 10px 15px; border-left: 5px solid #e9ecef; transition: background-color 0.4s ease, border-left-color 0.4s ease; position: relative; line-height: 1.6; font-size: 0.9rem; /* Slightly smaller refs */ background-color: #fdfdfd; border-radius: 0 6px 6px 0; }
+        #reference-slide li::before { counter-increment: ref-counter; content: "[" counter(ref-counter) "]"; display: inline-block; font-weight: 700; color: var(--secondary-color); margin-right: 1em; min-width: 30px; font-size: 1em; text-align: right; }
+        #reference-slide li.highlighted-ref { background-color: var(--highlight-bg); border-left-color: var(--highlight-border); box-shadow: 2px 2px 8px rgba(243, 156, 18, 0.2); }
+        #reference-slide li.highlighted-ref::before { color: var(--accent-color); }
+        .access-date, .reference-url { display: block; font-size: 0.9em; color: var(--light-text); margin-top: 0.3em; margin-left: calc(30px + 1em); }
+        .reference-url a { color: var(--primary-color); text-decoration: none; word-break: break-all; }
+        .reference-url a:hover { text-decoration: underline; color: var(--secondary-color); }
+        #reference-slide { padding-bottom: 1rem; justify-content: flex-start; }
+
+        /* Tables */
+         .slide .table-container { overflow-x: auto; margin: 1.5em 0; border: 1px solid #dee2e6; border-radius: var(--border-radius-medium); background-color: #fff; box-shadow: var(--shadow-light); }
+         .slide .table-container::-webkit-scrollbar { height: 8px; background-color: #f1f1f1; }
+         .slide .table-container::-webkit-scrollbar-thumb { background: #bdc3c7; border-radius: 4px;}
+         .slide .table-container::-webkit-scrollbar-thumb:hover { background: #95a5a6; }
+         .slide table { width: 100%; min-width: 600px; border-collapse: collapse; font-size: 0.9rem; }
+         .slide th, .slide td { border: none; border-bottom: 1px solid #e0e0e0; padding: 10px 14px; text-align: left; vertical-align: top; } /* Adjusted padding */
+         .slide tr:last-child td { border-bottom: none; }
+         .slide th { background-color: #f8f9fa; color: var(--heading-color); font-weight: 600; font-family: var(--font-heading); position: sticky; top: 0; z-index: 1; border-bottom-width: 2px; border-bottom-color: #dee2e6; }
+         .slide tbody tr:hover { background-color: #f1f5f9; }
+
+
+        /* Modal Styling */
+        .modal { display: none; position: fixed; z-index: 1050; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0, 0, 0, 0.6); opacity: 0; transition: opacity 0.3s ease; }
+        .modal.show { display: block; opacity: 1; }
+        .modal-content { position: relative; background-color: #fefefe; margin: 8% auto; padding: 25px 35px; border: none; width: 90%; max-width: 650px; border-radius: var(--border-radius-medium); box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15); animation: fadeInScale 0.4s ease-out; }
+        @keyframes fadeInScale { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .close-modal-btn { color: #aaa; position: absolute; top: 15px; right: 20px; font-size: 2rem; font-weight: bold; border: none; background: none; cursor: pointer; line-height: 1; padding: 0; }
+        .close-modal-btn:hover, .close-modal-btn:focus { color: #333; }
+        #toc-list { list-style: none; padding: 0; max-height: 65vh; overflow-y: auto; }
+        #toc-list li { margin-bottom: 0.6rem; }
+        .toc-link { text-decoration: none; color: var(--secondary-color); font-size: 1.05rem; transition: color 0.2s ease, background-color 0.2s ease; display: block; padding: 8px 10px; border-radius: 4px; }
+        .toc-link:hover { color: var(--primary-color); background-color: #f0f4f8; }
+        .toc-link i { margin-right: 12px; color: var(--light-text); transition: color 0.2s ease; }
+        .toc-link:hover i { color: var(--primary-color); }
+
+
+        /* --- Responsive Adjustments --- */
+
+        /* Tablet Portrait & Larger Phones */
+        @media (max-width: 1024px) {
+             html { font-size: 95%; } /* Scale down everything slightly */
+             .presentation-container { width: 96%; height: 92vh; max-height: none; }
+             .slide { padding: 1.8rem 2.5rem; }
+             .slide p, .slide li { font-size: 1rem; max-width: 65ch;}
+             .slide h1 { font-size: 2rem; }
+             .slide h2 { font-size: 1.7rem; }
+             .slide h3 { font-size: 1.4rem; }
+        }
+
+        /* Mobile Landscape & Small Tablets */
+        @media (max-width: 768px) {
+             html { font-size: 87.5%; } /* Further scale down (14px base) */
+             .presentation-container { height: 94vh; border-radius: var(--border-radius-medium); }
+             .slide { padding: 1.5rem 2rem; }
+             .slide p, .slide li { line-height: 1.7; max-width: none; }
+             .slide-controls { padding: 0.7rem 1rem; }
+             .slide-nav-button, .control-button { padding: 0.7rem 1.1rem; font-size: 0.9rem; }
+             .modal-content { width: 90%; margin: 12% auto; padding: 20px 25px; }
+             .multi-column-list { columns: 1; -webkit-columns: 1; -moz-columns: 1; } /* Force single column */
+        }
+
+         /* Mobile Portrait */
+        @media (max-width: 480px) {
+             html { font-size: 81.25%; } /* Further scale down (13px base) */
+             body { align-items: flex-start; } /* Remove centering */
+             .presentation-container { width: 100%; height: 100vh; border-radius: 0; margin: 0; box-shadow: none;}
+             .slide { padding: 1.2rem 1.2rem; } /* Less padding */
+             .slide h1 { font-size: 1.6rem; }
+             .slide h2 { font-size: 1.4rem; }
+             .slide h3 { font-size: 1.2rem; }
+             .slide-controls { padding: 0.5rem; flex-wrap: wrap; justify-content: space-around; } /* Space buttons better */
+             .slide-nav-button, .control-button { padding: 0.6rem 1rem; font-size: 0.85rem; margin: 0.3rem;}
+             .controls-center { order: 1; width: auto; margin: 0.3rem 0;} /* Put center controls after buttons */
+             #prev-slide { order: 0; }
+             #next-slide { order: 2; }
+             #reference-slide { padding-bottom: 7rem; } /* Ensure space for controls */
+             .modal-content { width: 95%; margin: 5% auto; padding: 15px 20px; }
+             #toc-list { max-height: 70vh; }
+             .toc-link { font-size: 1rem; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="presentation-container" id="presentationContainer">
+        <div class="progress-bar-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <div class="slides-viewport">
+            <div class="slide active title-slide" id="slide-0" role="region" aria-label="Başlık Slaytı">
+                 <h1>Primer İmmün Yetmezliklerde Benign Lenfoproliferatif Hastalıklar</h1>
+                <div class="presenter-info">
+                    Sunan:<br>
+                    <strong>Doç. Dr. Fatih Çölkesen</strong>
+                    İç Hastalıkları / Alerji Hastalıkları ve İmmünoloji Uzmanı<br>
+                    <span class="affiliation">Necmettin Erbakan Üniversitesi Meram Tıp Fakültesi</span>
+                </div>
+            </div>
+
+            <div class="slide content-slide" id="slide-1" role="region" aria-label="Giriş">
+                 <h2><i class="fas fa-info-circle"></i> Giriş: Önemi</h2>
+                <p><strong>Primer immün yetmezlikler (PİY):</strong> Bağışıklık sisteminin doğuştan gelen kusurlarıdır.<a href="#ref1" class="citation-link" onclick="return scrollToRefAndHighlight('ref1');">[1]</a></p>
+                <ul>
+                    <li>Sonuçları: Tekrarlayan/şiddetli enfeksiyonlar, otoimmünite, alerjiler, maligniteler.<a href="#ref1" class="citation-link" onclick="return scrollToRefAndHighlight('ref1');">[1]</a></li>
+                    <li>Sıklık: Nadir olsalar da tanı yöntemleriyle artan farkındalık. Türkiye'de ~3/10.000.<a href="#ref1" class="citation-link" onclick="return scrollToRefAndHighlight('ref1');">[1]</a>,<a href="#ref4" class="citation-link" onclick="return scrollToRefAndHighlight('ref4');">[4]</a></li>
+                    <li>Önem: Erken tanı morbidite ve mortaliteyi azaltır.<a href="#ref2" class="citation-link" onclick="return scrollToRefAndHighlight('ref2');">[2]</a></li>
+                </ul>
+                <p><strong>Benign lenfoproliferatif hastalıklar (BLPH):</strong> Lenfositlerin kontrolsüz ama kanseröz olmayan çoğalmasıdır.<a href="#ref5" class="citation-link" onclick="return scrollToRefAndHighlight('ref5');">[5]</a></p>
+                 <ul>
+                    <li>PİY'de Risk: Genel popülasyona göre daha yüksektir.<a href="#ref8" class="citation-link" onclick="return scrollToRefAndHighlight('ref8');">[8]</a></li>
+                    <li>Neden: Zayıflamış bağışıklık denetimi.<a href="#ref5" class="citation-link" onclick="return scrollToRefAndHighlight('ref5');">[5]</a></li>
+                </ul>
+                 <p><strong>Sunum Amacı:</strong> PİY'lerde görülen BLPH'ları güncel literatür ışığında incelemek.</p>
+            </div>
+
+            <div class="slide content-slide" id="slide-2" role="region" aria-label="Primer İmmün Yetmezlikler Tanım ve Sınıflandırma">
+                 <h2><i class="fas fa-shield-alt"></i> Primer İmmün Yetmezlikler (PİY)</h2>
+                 <h3>Tanım</h3>
+                <p>Doğal ve edinsel bağışıklık sistemindeki genetik defektlerdir.<a href="#ref1" class="citation-link" onclick="return scrollToRefAndHighlight('ref1');">[1]</a> >300 farklı türü tanımlanmıştır.<a href="#ref1" class="citation-link" onclick="return scrollToRefAndHighlight('ref1');">[1]</a> Genetik testler (NGS) tanıda önemlidir.<a href="#ref1" class="citation-link" onclick="return scrollToRefAndHighlight('ref1');">[1]</a></p>
+                 <h3>IUIS Sınıflandırması (2017)</h3>
+                 <p><i>(Not: Uluslararası kabul görmüş sınıflandırmadır.)</i> 9 ana grup içerir:</p>
+                 <ul>
+                     <li>Hücresel ve humoral kombine İY</li>
+                     <li>Sendromik özellikli kombine İY</li>
+                     <li>Primer antikor eksiklikleri (En sık grup<a href="#ref1" class="citation-link" onclick="return scrollToRefAndHighlight('ref1');">[1]</a> - Örn: CVID, IgA eks.)</li>
+                     <li>İmmün disregülasyon hastalıkları (Örn: ALPS<a href="#ref13" class="citation-link" onclick="return scrollToRefAndHighlight('ref13');">[13]</a>)</li>
+                     <li>Fagosit sayı/fonksiyon defektleri (Örn: CGD)</li>
+                     <li>İntrinsik ve innate immünite defektleri</li>
+                     <li>Otoinflamatuvar Bozukluklar</li>
+                     <li>Kompleman Eksiklikleri</li>
+                     <li>Fenokopik PİY</li>
+                 </ul>
+                 <h3><i class="fas fa-exclamation-triangle"></i> Erken Tanı: 10 Uyarı İşareti (JMF)<a href="#ref15" class="citation-link" onclick="return scrollToRefAndHighlight('ref15');">[15]</a></h3>
+                 <ul class="multi-column-list">
+                    <li>≥ 4 kulak enf./yıl</li>
+                    <li>≥ 2 sinüs enf./yıl</li>
+                    <li>≥ 2 ay antibiyotiğe yanıtsızlık</li>
+                    <li>≥ 2 zatürre/yıl</li>
+                    <li>Büyüme geriliği</li>
+                    <li>Tekrarlayan apse</li>
+                    <li>İnatçı mantar enf.</li>
+                    <li>IV antibiyotik ihtiyacı</li>
+                    <li>≥ 2 derin enfeksiyon</li>
+                    <li>Ailede PİY öyküsü</li>
+                </ul>
+                 <p>(Hem primer hem sekonder İY için kullanılabilir<a href="#ref4" class="citation-link" onclick="return scrollToRefAndHighlight('ref4');">[4]</a>)</p>
+            </div>
+
+             <div class="slide content-slide" id="slide-3" role="region" aria-label="Benign Lenfoproliferatif Hastalıklar Tanım ve Klinik">
+                 <h2><i class="fas fa-project-diagram"></i> Benign Lenfoproliferatif Hastalıklar (BLPH)</h2>
+                 <h3>Tanım</h3>
+                <p>Lenfoid hücrelerin (B, T, NK) kontrolsüz ama <strong>kanseröz olmayan</strong> çoğalmasıdır.<a href="#ref5" class="citation-link" onclick="return scrollToRefAndHighlight('ref5');">[5]</a> Reaktif hiperplaziden belirgin, malign lenfomadan farklıdır.</p>
+                 <h3><i class="fas fa-stethoscope"></i> Klinik Özellikler</h3>
+                 <p>Değişkendir<a href="#ref5" class="citation-link" onclick="return scrollToRefAndHighlight('ref5');">[5]</a>, asemptomatik olabilir veya nonspesifik yakınmalarla (ateş, kilo kaybı vb.)<a href="#ref9" class="citation-link" onclick="return scrollToRefAndHighlight('ref9');">[9]</a> başvurulabilir.</p>
+                 <ul>
+                    <li>Lenfadenopati (LAP)</li>
+                    <li>Splenomegali / Hepatomegali</li>
+                    <li>B semptomları (Ateş, gece terlemesi, kilo kaybı)</li>
+                    <li>Yorgunluk</li>
+                    <li>Tekrarlayan enfeksiyonlar<a href="#ref5" class="citation-link" onclick="return scrollToRefAndHighlight('ref5');">[5]</a></li>
+                    <li>Ekstranodal tutulum (GİS, SSS, kemik iliği vb.)<a href="#ref8" class="citation-link" onclick="return scrollToRefAndHighlight('ref8');">[8]</a></li>
+                </ul>
+                 <p>PİY'li hastalarda atipik sunumlar görülebilir ve malign lenfomalarla karışabilir.</p>
+            </div>
+
+            <div class="slide content-slide" id="slide-4" role="region" aria-label="BLPH Patogenez">
+                <h2><i class="fas fa-microscope"></i> BLPH: Patogenez</h2>
+                <p>Lenfosit proliferasyon kontrol mekanizmalarındaki bozukluklardan kaynaklanır.<a href="#ref6" class="citation-link" onclick="return scrollToRefAndHighlight('ref6');">[6]</a></p>
+                <p><strong>Ana Faktörler:</strong></p>
+                 <ul>
+                    <li><strong>Genetik Mutasyonlar:</strong> Onkogenler, tümör baskılayıcı genler.<a href="#ref7" class="citation-link" onclick="return scrollToRefAndHighlight('ref7');">[7]</a></li>
+                    <li><strong>Kronik Antijenik Uyarım:</strong> Sürekli bağışıklık aktivasyonu.<a href="#ref7" class="citation-link" onclick="return scrollToRefAndHighlight('ref7');">[7]</a></li>
+                    <li><strong>Onkojenik Virüsler (Özellikle EBV):</strong>
+                        <ul>
+                             <li>EBV yetişkinlerin >%90'ını etkiler.<a href="#ref16" class="citation-link" onclick="return scrollToRefAndHighlight('ref16');">[16]</a></li>
+                            <li>PİY'de EBV'ye karşı T hücre yanıtı bozulabilir.<a href="#ref8" class="citation-link" onclick="return scrollToRefAndHighlight('ref8');">[8]</a></li>
+                            <li>EBV+ B hücrelerinin kontrolsüz çoğalmasına yol açabilir.<a href="#ref6" class="citation-link" onclick="return scrollToRefAndHighlight('ref6');">[6]</a>,<a href="#ref8" class="citation-link" onclick="return scrollToRefAndHighlight('ref8');">[8]</a></li>
+                        </ul>
+                    </li>
+                     <li><strong>Bozulmuş Apoptoz:</strong>
+                        <ul>
+                             <li>Programlanmış hücre ölümünün aksaması.<a href="#ref17" class="citation-link" onclick="return scrollToRefAndHighlight('ref17');">[17]</a></li>
+                             <li>Örnek: Otoimmün Lenfoproliferatif Sendrom (ALPS) - Sıklıkla <i>FAS</i> geni mutasyonları.<a href="#ref17" class="citation-link" onclick="return scrollToRefAndHighlight('ref17');">[17]</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+
+             <div class="slide content-slide" id="slide-5" role="region" aria-label="PİY'de BLPH Gelişme Riski">
+                <h2><i class="fas fa-chart-line"></i> PİY ve BLPH Gelişme Riski</h2>
+                <p>PİY'li bireylerde BLPH/lenfoma riski <strong>belirgin şekilde yüksektir.</strong><a href="#ref8" class="citation-link" onclick="return scrollToRefAndHighlight('ref8');">[8]</a></p>
+                 <ul>
+                    <li>Çocuklarda malignite riski: %4 - %25 (Bunun %60'ı lenfoma).<a href="#ref9" class="citation-link" onclick="return scrollToRefAndHighlight('ref9');">[9]</a></li>
+                    <li>Yetişkinlerde lenfoma riski: Genel popülasyona göre ~8 kat artış.<a href="#ref9" class="citation-link" onclick="return scrollToRefAndHighlight('ref9');">[9]</a></li>
+                </ul>
+                 <h3><i class="fas fa-dna"></i> Risk Artışı Görülen Spesifik PİY'ler</h3>
+                <p>Bazı PİY türleri ve genetik defektler riski daha da artırır:</p>
+                <ul>
+                    <li><strong>Wiskott-Aldrich Sendromu (WAS):</strong> <i>WAS</i> geni. Yüksek EBV ilişkili B hücreli lenfoma riski.<a href="#ref9" class="citation-link" onclick="return scrollToRefAndHighlight('ref9');">[9]</a></li>
+                    <li><strong>X'e Bağlı Lenfoproliferatif Hastalık (XLP):</strong> <i>SH2D1A</i> (XLP1). Yüksek EBV ilişkili lenfoma riski.<a href="#ref9" class="citation-link" onclick="return scrollToRefAndHighlight('ref9');">[9]</a></li>
+                    <li><strong>Otoimmün Lenfoproliferatif Sendrom (OLPS):</strong> <i>FAS</i>, <i>FASL</i>, <i>CASP10</i> genleri. Hodgkin ve NHL riski.<a href="#ref9" class="citation-link" onclick="return scrollToRefAndHighlight('ref9');">[9]</a></li>
+                    <li><strong>Şiddetli Kombine İmmün Yetmezlik (ŞKİY):</strong> Yaşayanlarda NHL riski (~%1.5).<a href="#ref9" class="citation-link" onclick="return scrollToRefAndHighlight('ref9');">[9]</a></li>
+                    <li><strong>Ataksi-Telenjiektazi (AT):</strong> <i>ATM</i> geni. Çok yüksek lenfoma/lösemi riski (~100 kat).<a href="#ref8" class="citation-link" onclick="return scrollToRefAndHighlight('ref8');">[8]</a>,<a href="#ref11" class="citation-link" onclick="return scrollToRefAndHighlight('ref11');">[11]</a></li>
+                    <li><strong>Yaygın Değişken İmmün Yetmezlik (YDİY):</strong> Hodgkin, NHL, MALT lenfoma riski.<a href="#ref8" class="citation-link" onclick="return scrollToRefAndHighlight('ref8');">[8]</a>,<a href="#ref11" class="citation-link" onclick="return scrollToRefAndHighlight('ref11');">[11]</a></li>
+                    <li><strong>Diğerleri:</strong> NBS (<i>NBN</i>), Hiper-IgM (<i>CD40L/CD40</i>), APDS (<i>PIK3CD</i>) vb.<a href="#ref11" class="citation-link" onclick="return scrollToRefAndHighlight('ref11');">[11]</a></li>
+                </ul>
+                 <p>Risk mekanizmaları PİY türüne göre değişir. Vaka/kohort çalışmaları bu riskleri destekler.<a href="#ref20" class="citation-link" onclick="return scrollToRefAndHighlight('ref20');">[20]</a></p>
+             </div>
+
+            <div class="slide content-slide" id="slide-6" role="region" aria-label="PİY Türlerine Göre Risk Özeti Tablosu">
+                <h2><i class="fas fa-table"></i> PİY Türlerine Göre Risk Özeti (Tablo 1)</h2>
+                 <div class="table-container">
+                     <table>
+                        <thead>
+                            <tr><th>PİY Türü</th><th>İlişkili Genetik Defekt(ler)</th><th>BLPH/Lenfoma Gelişme Riski</th><th>En Sık Görülen Tipler</th><th>EBV İlişkisi</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Wiskott-Aldrich Sendromu (WAS)</td><td><i>WAS</i> geni mutasyonları</td><td>Yüksek<a href="#ref9" class="citation-link" onclick="return scrollToRefAndHighlight('ref9');">[9]</a></td><td>B hücreli lenfoma<a href="#ref9" class="citation-link" onclick="return scrollToRefAndHighlight('ref9');">[9]</a></td><td>Sık<a href="#ref9" class="citation-link" onclick="return scrollToRefAndHighlight('ref9');">[9]</a></td></tr>
+                            <tr><td>X'e Bağlı Lenfoproliferatif Hastalık (XLP)</td><td><i>SH2D1A</i> (XLP1), <i>BIRC4/XIAP</i> (XLP2) gen mutasyonları</td><td>Yüksek (XLP1)<a href="#ref9" class="citation-link" onclick="return scrollToRefAndHighlight('ref9');">[9]</a></td><td>B hücreli lenfoma (öz. Burkitt)<a href="#ref9" class="citation-link" onclick="return scrollToRefAndHighlight('ref9');">[9]</a></td><td>Sık (XLP1)<a href="#ref9" class="citation-link" onclick="return scrollToRefAndHighlight('ref9');">[9]</a></td></tr>
+                            <tr><td>Otoimmün Lenfoproliferatif Sendrom (OLPS)</td><td><i>FAS</i>, <i>FASL</i>, <i>CASP10</i> gen mutasyonları</td><td>Yüksek<a href="#ref9" class="citation-link" onclick="return scrollToRefAndHighlight('ref9');">[9]</a></td><td>Hodgkin lenfoma, B hücreli NHL<a href="#ref9" class="citation-link" onclick="return scrollToRefAndHighlight('ref9');">[9]</a></td><td>Bilinmiyor</td></tr>
+                            <tr><td>Şiddetli Kombine İmmün Yetmezlik (ŞKİY)</td><td>Çeşitli genetik defektler</td><td>Düşük (~%1.5)<a href="#ref9" class="citation-link" onclick="return scrollToRefAndHighlight('ref9');">[9]</a></td><td>NHL<a href="#ref9" class="citation-link" onclick="return scrollToRefAndHighlight('ref9');">[9]</a></td><td>Bilinmiyor</td></tr>
+                            <tr><td>Ataksi-Telenjiektazi (AT)</td><td><i>ATM</i> geni mutasyonları</td><td>Çok Yüksek (~100 kat)<a href="#ref8" class="citation-link" onclick="return scrollToRefAndHighlight('ref8');">[8]</a>, <a href="#ref11" class="citation-link" onclick="return scrollToRefAndHighlight('ref11');">[11]</a></td><td>T hücreli lösemi/lenfoma, NHL<a href="#ref8" class="citation-link" onclick="return scrollToRefAndHighlight('ref8');">[8]</a></td><td>Bilinmiyor</td></tr>
+                            <tr><td>Yaygın Değişken İmmün Yetmezlik (YDİY)</td><td>Heterojen</td><td>Yüksek<a href="#ref8" class="citation-link" onclick="return scrollToRefAndHighlight('ref8');">[8]</a>, <a href="#ref11" class="citation-link" onclick="return scrollToRefAndHighlight('ref11');">[11]</a></td><td>Hodgkin, NHL, MALT lenfoma<a href="#ref8" class="citation-link" onclick="return scrollToRefAndHighlight('ref8');">[8]</a></td><td>Bilinmiyor</td></tr>
+                        </tbody>
+                    </table>
+                 </div>
+                 <p><i>Not: Bu tablo sık görülen bazı örnekleri içerir, liste tam değildir.</i></p>
+            </div>
+
+            <div class="slide content-slide" id="slide-7" role="region" aria-label="Klinik Sunumlar">
+                 <h2><i class="fas fa-notes-medical"></i> Klinik Sunumlar</h2>
+                <p>PİY'li hastalarda BLPH'ların klinik sunumları değişkendir<a href="#ref9" class="citation-link" onclick="return scrollToRefAndHighlight('ref9');">[9]</a> ve enfeksiyon/inflamasyon/neoplaziyi taklit edebilir.<a href="#ref21" class="citation-link" onclick="return scrollToRefAndHighlight('ref21');">[21]</a></p>
+                <h3><i class="fas fa-stethoscope"></i> Sık Görülen Bulgular</h3>
+                <ul>
+                    <li><strong>Persistan/Tekrarlayan LAP veya Splenomegali:</strong> >6 ay süren, malign/enfeksiyöz olmayan.<a href="#ref22" class="citation-link" onclick="return scrollToRefAndHighlight('ref22');">[22]</a></li>
+                    <li><strong>Splenomegali / Hepatomegali</strong><a href="#ref5" class="citation-link" onclick="return scrollToRefAndHighlight('ref5');">[5]</a></li>
+                    <li><strong>B semptomları:</strong> Açıklanamayan ateş, gece terlemesi, kilo kaybı.<a href="#ref5" class="citation-link" onclick="return scrollToRefAndHighlight('ref5');">[5]</a></li>
+                    <li><strong>Enfeksiyonların Kötüleşmesi:</strong> Tekrarlayan veya atipik enfeksiyonlar.<a href="#ref23" class="citation-link" onclick="return scrollToRefAndHighlight('ref23');">[23]</a></li>
+                    <li><strong>Otoimmün Sitopeniler:</strong> Anemi, trombositopeni, nötropeni (Özellikle ALPS'de sık).<a href="#ref18" class="citation-link" onclick="return scrollToRefAndHighlight('ref18');">[18]</a></li>
+                    <li><strong>Ekstranodal Tutulum Belirtileri:</strong> GİS, SSS gibi organ tutulumları.<a href="#ref8" class="citation-link" onclick="return scrollToRefAndHighlight('ref8');">[8]</a></li>
+                </ul>
+                <p>Yeni başlayan veya kötüleşen bu bulgular ileri tetkik gerektirir. Ayırıcı tanıda enfeksiyonlar (örn: EBV<a href="#ref6" class="citation-link" onclick="return scrollToRefAndHighlight('ref6');">[6]</a>), otoimmünite ve malign lenfomalar yer alır.<a href="#ref1" class="citation-link" onclick="return scrollToRefAndHighlight('ref1');">[1]</a></p>
+            </div>
+
+            <div class="slide content-slide" id="slide-8" role="region" aria-label="Tanı Yöntemleri">
+                 <h2><i class="fas fa-vials"></i> Tanı Yöntemleri (Tablo 2)</h2>
+                 <p>BLPH tanısı, maligniteyi dışlamak ve benign durumu doğrulamak için multidisipliner bir yaklaşım gerektirir.</p>
+                  <div class="table-container">
+                     <table>
+                        <thead>
+                            <tr><th>Tanı Yöntemi</th><th>Açıklama</th><th>PİY'lerde BLPH Tanısındaki Rolü</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Lenf Nodu Biyopsisi</td><td>Histopatoloji, immüfenotipleme, klonalite</td><td>Altın standart; morfoloji, belirteçler, klonalite.<a href="#ref5" class="citation-link" onclick="return scrollToRefAndHighlight('ref5');">[5]</a> Maligniteyi dışlamak için kritik.</td></tr>
+                            <tr><td>Flow Sitometri</td><td>Lenfosit alt tip analizi</td><td>İmmünfenotipleme; ALPS'de DNT tespiti.<a href="#ref5" class="citation-link" onclick="return scrollToRefAndHighlight('ref5');">[5]</a>, <a href="#ref22" class="citation-link" onclick="return scrollToRefAndHighlight('ref22');">[22]</a></td></tr>
+                            <tr><td>Genetik Testler</td><td>Altta yatan PİY ve ilişkili defektler</td><td>Spesifik PİY tanısı ve risk değerlendirmesi.<a href="#ref1" class="citation-link" onclick="return scrollToRefAndHighlight('ref1');">[1]</a></td></tr>
+                            <tr><td>EBV Testleri</td><td>EBV DNA, seroloji, dokuda EBER</td><td>EBV ilişkili lenfoproliferasyon tanısı.<a href="#ref5" class="citation-link" onclick="return scrollToRefAndHighlight('ref5');">[5]</a>,<a href="#ref26" class="citation-link" onclick="return scrollToRefAndHighlight('ref26');">[26]</a></td></tr>
+                            <tr><td>Diğer Laboratuvar Testleri</td><td>Kan sayımı, biyokimya, Ig düzeyleri, otoantikorlar</td><td>Genel durum, ayırıcı tanı.<a href="#ref22" class="citation-link" onclick="return scrollToRefAndHighlight('ref22');">[22]</a> ALPS'de hipergammaglobulinemi/otoantikorlar.<a href="#ref22" class="citation-link" onclick="return scrollToRefAndHighlight('ref22');">[22]</a></td></tr>
+                            <tr><td>Görüntüleme Yöntemleri</td><td>BT, MR, PET</td><td>Yaygınlık değerlendirme, takip.<a href="#ref5" class="citation-link" onclick="return scrollToRefAndHighlight('ref5');">[5]</a>,<a href="#ref24" class="citation-link" onclick="return scrollToRefAndHighlight('ref24');">[24]</a></td></tr>
+                        </tbody>
+                    </table>
+                 </div>
+            </div>
+
+            <div class="slide content-slide" id="slide-9" role="region" aria-label="Tedavi Yaklaşımları">
+                 <h2><i class="fas fa-pills"></i> Tedavi Yaklaşımları (Tablo 3)</h2>
+                 <p>Tedavi; altta yatan PİY'e, BLPH şiddetine ve hastanın durumuna göre <strong>bireyselleştirilir.</strong><a href="#ref9" class="citation-link" onclick="return scrollToRefAndHighlight('ref9');">[9]</a> Benign/malign ayrımı kritiktir.<a href="#ref21" class="citation-link" onclick="return scrollToRefAndHighlight('ref21');">[21]</a></p>
+                 <div class="table-container">
+                     <table>
+                        <thead>
+                            <tr><th>Tedavi Yaklaşımı</th><th>Açıklama</th><th>PİY'li Hastalarda BLPH Tedavisindeki Rolü</th></tr>
+                        </thead>
+                        <tbody>
+                             <tr><td>İmmünsüpresif Ted. Azaltılması/Kesilmesi</td><td>Transplant sonrası IS azaltma</td><td>PTLH'da ilk basamak.<a href="#ref17" class="citation-link" onclick="return scrollToRefAndHighlight('ref17');">[17]</a>,<a href="#ref27" class="citation-link" onclick="return scrollToRefAndHighlight('ref27');">[27]</a></td></tr>
+                            <tr><td>Antiviral Tedavi</td><td>Asiklovir vb.</td><td>EBV ile ilişkili durumlarda.<a href="#ref17" class="citation-link" onclick="return scrollToRefAndHighlight('ref17');">[17]</a>,<a href="#ref27" class="citation-link" onclick="return scrollToRefAndHighlight('ref27');">[27]</a></td></tr>
+                            <tr><td>İntravenöz İmmünglobulin (IVIG)</td><td>Ig replasmanı</td><td>Ig eksikliğinde enfeksiyon riskini azaltır.<a href="#ref2" class="citation-link" onclick="return scrollToRefAndHighlight('ref2');">[2]</a>,<a href="#ref17" class="citation-link" onclick="return scrollToRefAndHighlight('ref17');">[17]</a>,<a href="#ref27" class="citation-link" onclick="return scrollToRefAndHighlight('ref27');">[27]</a>,<a href="#ref28" class="citation-link" onclick="return scrollToRefAndHighlight('ref28');">[28]</a></td></tr>
+                            <tr><td>Antibiyotik Profilaksisi</td><td>Fırsatçı enfeksiyonları önleme (örn: PJP)</td><td>Önemli.<a href="#ref9" class="citation-link" onclick="return scrollToRefAndHighlight('ref9');">[9]</a></td></tr>
+                            <tr><td>İmmünsüpresif Tedavi (Spesifik)</td><td>Kortikosteroidler, mTOR inh. (Sirolimus)</td><td>Otoimmünite kontrolü (ALPS vb.).<a href="#ref17" class="citation-link" onclick="return scrollToRefAndHighlight('ref17');">[17]</a>, <a href="#ref29" class="citation-link" onclick="return scrollToRefAndHighlight('ref29');">[29]</a></td></tr>
+                            <tr><td>Kemoterapi</td><td>Sitotoksik ilaçlar</td><td>Malign transformasyon şüphesi/agresif BLPH.<a href="#ref9" class="citation-link" onclick="return scrollToRefAndHighlight('ref9');">[9]</a>,<a href="#ref17" class="citation-link" onclick="return scrollToRefAndHighlight('ref17');">[17]</a>,<a href="#ref27" class="citation-link" onclick="return scrollToRefAndHighlight('ref27');">[27]</a> PİY'de toksisite riski yüksek.<a href="#ref27" class="citation-link" onclick="return scrollToRefAndHighlight('ref27');">[27]</a></td></tr>
+                            <tr><td>Hematopoetik Kök Hücre Nakli (HKHN)</td><td>Kök hücre nakli</td><td>Seçilmiş PİY'lerde (XLP, ŞKİY, WAS) küratif.<a href="#ref9" class="citation-link" onclick="return scrollToRefAndHighlight('ref9');">[9]</a>,<a href="#ref27" class="citation-link" onclick="return scrollToRefAndHighlight('ref27');">[27]</a>,<a href="#ref30" class="citation-link" onclick="return scrollToRefAndHighlight('ref30');">[30]</a>,<a href="#ref31" class="citation-link" onclick="return scrollToRefAndHighlight('ref31');">[31]</a></td></tr>
+                            <tr><td>Hedefe Yönelik Tedaviler</td><td>Spesifik moleküler hedeflere yönelik ilaçlar</td><td>APDS'de PI3Kδ inh., ALPS'de sirolimus.<a href="#ref29" class="citation-link" onclick="return scrollToRefAndHighlight('ref29');">[29]</a></td></tr>
+                            <tr><td>İmmünoterapi</td><td>Rituksimab vb. monoklonal antikorlar</td><td>B hücre hedefli tedaviler.<a href="#ref17" class="citation-link" onclick="return scrollToRefAndHighlight('ref17');">[17]</a>,<a href="#ref27" class="citation-link" onclick="return scrollToRefAndHighlight('ref27');">[27]</a>,<a href="#ref29" class="citation-link" onclick="return scrollToRefAndHighlight('ref29');">[29]</a></td></tr>
+                        </tbody>
+                    </table>
+                 </div>
+            </div>
+
+             <div class="slide content-slide" id="slide-10" role="region" aria-label="Meta-Analiz ve Sistematik Derlemeler">
+                 <h2><i class="fas fa-book-open"></i> Meta-Analiz ve Sistematik Derlemeler</h2>
+                 <p><strong>Artmış Lenfoma Riski:</strong> Sistematik derlemeler PİY'li hastalarda lenfoma riskinin arttığını doğrulamıştır.<a href="#ref20" class="citation-link" onclick="return scrollToRefAndHighlight('ref20');">[20]</a></p>
+                 <ul>
+                     <li>En sık ilişkili PİY: T hücre defektleri.<a href="#ref20" class="citation-link" onclick="return scrollToRefAndHighlight('ref20');">[20]</a></li>
+                     <li>En sık lenfoma tipi: Diffüz büyük B hücreli lenfoma (DLBCL).<a href="#ref20" class="citation-link" onclick="return scrollToRefAndHighlight('ref20');">[20]</a></li>
+                     <li>EBV ilişkisi: Doğuştan PİY'lerde sık gözlenir.<a href="#ref20" class="citation-link" onclick="return scrollToRefAndHighlight('ref20');">[20]</a></li>
+                     <li>Lenfoid neoplaziler: PİY'lerdeki tüm malignitelerin ~2/3'ünü oluşturur.<a href="#ref11" class="citation-link" onclick="return scrollToRefAndHighlight('ref11');">[11]</a></li>
+                 </ul>
+                 <p><strong>ALPS ve Benzeri Sendromlar:</strong> Meta-analizler, ALPS benzeri fenotiple ilişkili 24 farklı genetik defekt (CTLA4, LRBA sık) tanımlamıştır.<a href="#ref29" class="citation-link" onclick="return scrollToRefAndHighlight('ref29');">[29]</a> Hedefe yönelik tedaviler önem kazanmaktadır.<a href="#ref29" class="citation-link" onclick="return scrollToRefAndHighlight('ref29');">[29]</a></p>
+                 <p><strong>Geniş Kapsamlı Risk:</strong> PİY'ler sadece enfeksiyon değil; alerji, inflamasyon, otoimmünite, lenfoproliferasyon ve malignite riskini de artırır.<a href="#ref33" class="citation-link" onclick="return scrollToRefAndHighlight('ref33');">[33]</a> İmmün disregülasyon önemli bir faktördür.<a href="#ref33" class="citation-link" onclick="return scrollToRefAndHighlight('ref33');">[33]</a></p>
+            </div>
+
+            <div class="slide content-slide" id="slide-11" role="region" aria-label="Sonuç">
+                 <h2><i class="fas fa-check-circle"></i> Sonuç</h2>
+                 <ul>
+                    <li>PİY'ler, BLPH için önemli bir <strong>risk faktörüdür</strong>.</li>
+                    <li>Klinik sunumları <strong>değişkendir</strong>; tanı <strong>multidisiplinerdir</strong>.</li>
+                    <li>Tedavi <strong>bireyselleştirilmelidir</strong>.</li>
+                    <li>PİY'li hastaların takibinde LPH potansiyeli <strong>göz önünde bulundurulmalı</strong>, uygun stratejiler uygulanmalıdır.</li>
+                    <li><strong>Gelecek Araştırmalar:</strong> Mekanizmaları aydınlatmaya ve hedefe yönelik tedavileri geliştirmeye odaklanmalıdır.</li>
+                </ul>
+            </div>
+
+            <div class="slide content-slide" id="reference-slide" role="region" aria-label="Kaynaklar">
+                 <h2><i class="fas fa-book"></i> Kaynaklar</h2>
+                 <p><i>(Toplam 58 Kaynak. Metin içinde [1]-[33] arası numaralara atıf yapılmaktadır.)</i></p>
+                 <ol>
+                    <li id="ref1"><b>dergipark.org.tr</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://dergipark.org.tr/tr/download/article-file/679333" target="_blank" rel="noopener noreferrer">https://dergipark.org.tr/tr/download/article-file/679333</a></span></li>
+                    <li id="ref2"><b>Primer İmmün Yetmezlik Hastalarında İmmünoglobulin Replasman Tedavisi Altında Gelişen İnfeksiyonlar: 5 Yıllık Deneyim - TRDizin</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://search.trdizin.gov.tr/tr/yayin/detay/1282111/primer-immun-yetmezlik-hastalarinda-immunoglobulin-replasman-tedavisi-altinda-gelisen-infeksiyonlar-5-yillik-deneyim" target="_blank" rel="noopener noreferrer">https://search.trdizin.gov.tr/tr/yayin/detay/1282111/...</a></span></li>
+                    <li id="ref3"><b>Primary immunodeficiency - PMC</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6157160/" target="_blank" rel="noopener noreferrer">https://pmc.ncbi.nlm.nih.gov/articles/PMC6157160/</a></span></li>
+                    <li id="ref4"><b>Evaluation of the 10 Warning Signs in Primary and Secondary Immunodeficient Patients</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC9136241/" target="_blank" rel="noopener noreferrer">https://pmc.ncbi.nlm.nih.gov/articles/PMC9136241/</a></span></li>
+                    <li id="ref5"><b>Lymphoproliferative Disorders: Types & Symptoms - Cleveland Clinic</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://my.clevelandclinic.org/health/diseases/lymphoproliferative-disorders" target="_blank" rel="noopener noreferrer">https://my.clevelandclinic.org/health/diseases/lymphoproliferative-disorders</a></span></li>
+                    <li id="ref6"><b>Lymphoproliferative Disorders - StatPearls - NCBI Bookshelf</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://www.ncbi.nlm.nih.gov/books/NBK537162/" target="_blank" rel="noopener noreferrer">https://www.ncbi.nlm.nih.gov/books/NBK537162/</a></span></li>
+                    <li id="ref7"><b>Lymphoproliferative Disorders: Symptoms, Treatment, Outlook, and More - Healthline</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://www.healthline.com/health/cancer/lymphoproliferative-disorder" target="_blank" rel="noopener noreferrer">https://www.healthline.com/health/cancer/lymphoproliferative-disorder</a></span></li>
+                    <li id="ref8"><b>books.akademisyen.net</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://books.akademisyen.net/index.php/akya/catalog/download/100/113/3554?inline=1" target="_blank" rel="noopener noreferrer">https://books.akademisyen.net/index.php/akya/catalog/download/100/113/3554?inline=1</a></span></li>
+                    <li id="ref9"><b>www.thd.org.tr (İmmün Yetersizlik Zemininde Oluşan Lenfoproliferatif Hastalıklar)</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="http://www.thd.org.tr/thdData/Books/641/immun-yetersizlik-zemininde-olusan-lenfoproliferatif-hastaliklar.pdf" target="_blank" rel="noopener noreferrer">http://www.thd.org.tr/thdData/Books/641/...hastaliklar.pdf</a></span></li>
+                    <li id="ref10"><b>Primary immunodeficiency - Symptoms & causes - Mayo Clinic</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://www.mayoclinic.org/diseases-conditions/primary-immunodeficiency/symptoms-causes/syc-20376905" target="_blank" rel="noopener noreferrer">https://www.mayoclinic.org/diseases-conditions/primary-immunodeficiency/symptoms-causes/syc-20376905</a></span></li>
+                    <li id="ref11"><b>A Systematic Review on Predisposition to Lymphoid (B ...) - Frontiers</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://www.frontiersin.org/journals/immunology/articles/10.3389/fimmu.2019.00777/full" target="_blank" rel="noopener noreferrer">https://www.frontiersin.org/journals/immunology/articles/10.3389/fimmu.2019.00777/full</a></span></li>
+                    <li id="ref12"><b>SIK GÖRÜLEN DEĞİŞKEN İMMÜN YETMEZLİK TANISI OLAN HASTALARDA HLA... (Tez)</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://nek.istanbul.edu.tr/ekos/TEZ/59908.pdf" target="_blank" rel="noopener noreferrer">https://nek.istanbul.edu.tr/ekos/TEZ/59908.pdf</a></span></li>
+                    <li id="ref13"><b>Primary Immune Regulatory Disorders With an Autoimmune Lymphoproliferative Syndrome-Like Phenotype... - Frontiers</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://www.frontiersin.org/journals/immunology/articles/10.3389/fimmu.2021.671755/full" target="_blank" rel="noopener noreferrer">https://www.frontiersin.org/journals/immunology/articles/10.3389/fimmu.2021.671755/full</a></span></li>
+                    <li id="ref14"><b>Types of PI - Immune Deficiency Foundation (CGD)</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://primaryimmune.org/understanding-primary-immunodeficiency/types-of-pi/c" target="_blank" rel="noopener noreferrer">https://primaryimmune.org/understanding-primary-immunodeficiency/types-of-pi/c</a></span></li>
+                    <li id="ref15"><b>Jeffrey Modell Diagnostic & Research Center at MUSC Health</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://musckids.org/our-services/immunology-services" target="_blank" rel="noopener noreferrer">https://musckids.org/our-services/immunology-services</a></span></li>
+                    <li id="ref16"><b>Epstein-Barr Virüs (EBV) İlişkili Neoplastik ve Nonneoplastik Lenfoproliferatif Hastalıklar... (LLM Dergi)</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="http://www.llmdergi.org/upload/documents/2023-7-1-1-13%20Dicle%20Serbes.pdf" target="_blank" rel="noopener noreferrer">http://www.llmdergi.org/upload/documents/2023-7-1-1-13%20Dicle%20Serbes.pdf</a></span></li>
+                    <li id="ref17"><b>www.thd.org.tr (Lenfoproliferatif Hastalıklarda Ayırıcı Tanı ve Tedavi)</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://www.thd.org.tr/thdData/Books/679/lenfoproliferatif-hastaliklarda-ayirici-tani-ve-tedavi-sebnem-yilmaz-bengoa.pdf" target="_blank" rel="noopener noreferrer">https://www.thd.org.tr/thdData/Books/679/...sebnem-yilmaz-bengoa.pdf</a></span></li>
+                    <li id="ref18"><b>Autoimmune Lymphoproliferative Syndrome: Background... - Medscape</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://emedicine.medscape.com/article/1663330-overview" target="_blank" rel="noopener noreferrer">https://emedicine.medscape.com/article/1663330-overview</a></span></li>
+                    <li id="ref19"><b>Immunodeficiency-Associated Lymphoproliferative Disorders (Chapter 23) - Pediatric Pathology... - Cambridge</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://www.cambridge.org/core/books/pediatric-pathology-of-hematopoietic-and-histiocytic-disorders/immunodeficiencyassociated-lymphoproliferative-disorders/DC6419C7E095F2971E4039CEDA0FFD0A" target="_blank" rel="noopener noreferrer">https://www.cambridge.org/core/books/.../DC6419C7E095F2971E4039CEDA0FFD0A</a></span></li>
+                    <li id="ref20"><b>Primary immunodeficiencies and lymphoma: a systematic review... - PubMed</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://pubmed.ncbi.nlm.nih.gov/31580160/" target="_blank" rel="noopener noreferrer">https://pubmed.ncbi.nlm.nih.gov/31580160/</a></span></li>
+                    <li id="ref21"><b>Lymphoproliferation in Inborn Errors of Immunity... - Frontiers</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://www.frontiersin.org/journals/immunology/articles/10.3389/fimmu.2022.856601/full" target="_blank" rel="noopener noreferrer">https://www.frontiersin.org/journals/immunology/articles/10.3389/fimmu.2022.856601/full</a></span></li>
+                    <li id="ref22"><b>Autoimmune Lymphoproliferative Syndrome Workup - Medscape</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://emedicine.medscape.com/article/1663330-workup" target="_blank" rel="noopener noreferrer">https://emedicine.medscape.com/article/1663330-workup</a></span></li>
+                    <li id="ref23"><b>What is PI? - Immune Deficiency Foundation</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://primaryimmune.org/understanding-primary-immunodeficiency/what-is-pi" target="_blank" rel="noopener noreferrer">https://primaryimmune.org/understanding-primary-immunodeficiency/what-is-pi</a></span></li>
+                    <li id="ref24"><b>Childhood Non-Hodgkin Lymphoma Treatment (PDQ®) - NCI</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://www.cancer.gov/types/lymphoma/hp/child-nhl-treatment-pdq" target="_blank" rel="noopener noreferrer">https://www.cancer.gov/types/lymphoma/hp/child-nhl-treatment-pdq</a></span></li>
+                    <li id="ref25"><b>EN SON GELİŞMELER - KLİNİK İMMÜNOLOJİ DERNEĞİ (Kongre Kitabı)</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://klinikimmunolojidernegi.org.tr/3.nci%20kongre.pdf" target="_blank" rel="noopener noreferrer">https://klinikimmunolojidernegi.org.tr/3.nci%20kongre.pdf</a></span></li>
+                    <li id="ref26"><b>Immunodeficiency-associated lymphoproliferative disorders: time for reappraisal? - PMC</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6213318/" target="_blank" rel="noopener noreferrer">https://pmc.ncbi.nlm.nih.gov/articles/PMC6213318/</a></span></li>
+                    <li id="ref27"><b>Lymphoproliferative Disorders Treatment & Management - Medscape</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://emedicine.medscape.com/article/987765-treatment" target="_blank" rel="noopener noreferrer">https://emedicine.medscape.com/article/987765-treatment</a></span></li>
+                    <li id="ref28"><b>Diagnosis and Management of Immunodeficiencies in Adults by Allergologists - JIACI</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://www.jiaci.org/issues/vol20issue3/3.pdf" target="_blank" rel="noopener noreferrer">https://www.jiaci.org/issues/vol20issue3/3.pdf</a></span></li>
+                    <li id="ref29"><b>Primary Immune Regulatory Disorders With an Autoimmune Lymphoproliferative Syndrome-Like Phenotype... - PMC</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC8382720/" target="_blank" rel="noopener noreferrer">https://pmc.ncbi.nlm.nih.gov/articles/PMC8382720/</a></span></li>
+                    <li id="ref30"><b>Lymphoproliferative disorders in children with primary immunodeficiencies... - ResearchGate</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://www.researchgate.net/publication/12123114_Lymphoproliferative_disorders_in_children_with_primary_immunodeficiencies_Immunological_status_may_be_more_predictive_of_the_outcome_than_other_criteria" target="_blank" rel="noopener noreferrer">https://www.researchgate.net/publication/12123114...</a></span></li>
+                    <li id="ref31"><b>Precision medicine: The use of tailored therapy in primary immunodeficiencies - Frontiers</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://www.frontiersin.org/journals/immunology/articles/10.3389/fimmu.2022.1029560/full" target="_blank" rel="noopener noreferrer">https://www.frontiersin.org/journals/immunology/articles/10.3389/fimmu.2022.1029560/full</a></span></li>
+                    <li id="ref32"><b>Primary Immune Regulatory Disorders With an Autoimmune Lymphoproliferative Syndrome-Like Phenotype... - PubMed</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://pubmed.ncbi.nlm.nih.gov/34447369/" target="_blank" rel="noopener noreferrer">https://pubmed.ncbi.nlm.nih.gov/34447369/</a></span></li>
+                    <li id="ref33"><b>Immunodeficiencies: non-infectious manifestations - PMC</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC9432189/" target="_blank" rel="noopener noreferrer">https://pmc.ncbi.nlm.nih.gov/articles/PMC9432189/</a></span></li>
+                    <li id="ref34"><b>6. Klinik İmmünoloji Kongresi (Wiskott Aldrich...) - ResearchGate</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://www.researchgate.net/profile/Goekcan-Oeztuerk/publication/346470210_Wiskott_Aldrich_Tanisi_Alan_Vakalarin_Ozelliklerinin_Degerlendirilmesi_Tek_Merkez_Deneyimi/links/5fc3ade8458515b79784f72b/Wiskott-Aldrich-Tanisi-Alan-Vakalarin-Oezelliklerinin-Degerlendirilmesi-Tek-Merkez-Deneyimi.pdf" target="_blank" rel="noopener noreferrer">https://www.researchgate.net/profile/Goekcan-Oeztuerk/.../Wiskott-Aldrich...pdf</a></span></li>
+                    <li id="ref35"><b>Turkish Journal of Hematology Volume: 31 - Issue: 4 - Issuu</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://issuu.com/journalagent/docs/tjh-2014-4" target="_blank" rel="noopener noreferrer">https://issuu.com/journalagent/docs/tjh-2014-4</a></span></li>
+                    <li id="ref36"><b>2024 EKMUD POSTER SUNUMLAR - cloudfront.net</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://d2v96fxpocvxx.cloudfront.net/new/d363ec1e-9e5e-4591-a00a-d656bfcabb80/articles/ee511b9e-710b-4dcd-8c91-78f287f2e6ad/2024-poster-sunumlar.pdf" target="_blank" rel="noopener noreferrer">https://d2v96fxpocvxx.cloudfront.net/.../2024-poster-sunumlar.pdf</a></span></li>
+                    <li id="ref37"><b>MEZUNİYET ÖNCESİ TIP EĞİTİMİ ULUSAL ÇEKİRDEK EĞİTİM PROGRAMI 2020 (YÖK)</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://www.yok.gov.tr/Documents/Kurumsal/egitim_ogretim_dairesi/Ulusal-cekirdek-egitimi-programlari/mezuniyet-oncesi-tip-egitimi-cekirdek-egitimi-programi.pdf" target="_blank" rel="noopener noreferrer">https://www.yok.gov.tr/Documents/.../mezuniyet-oncesi-tip-egitimi...programi.pdf</a></span></li>
+                    <li id="ref38"><b>ULUSAL ALERJİ ve KLİNİK İMMÜNOLOJİ KONGRESİ (Özet Kitabı)</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://www.aid.org.tr/wp-content/uploads/2025/01/Konusma-Ozetleri-2024-SON-son.pdf" target="_blank" rel="noopener noreferrer">https://www.aid.org.tr/wp-content/uploads/2025/01/Konusma-Ozetleri-2024-SON-son.pdf</a></span></li>
+                    <li id="ref39"><b>BİLDİRİ ÖZETLERİ KİTABI - Türk Pediatri Kurumu</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://turkpediatri.org.tr/storage/57tpkkitap-16964312250n5Kz.pdf" target="_blank" rel="noopener noreferrer">https://turkpediatri.org.tr/storage/57tpkkitap-16964312250n5Kz.pdf</a></span></li>
+                    <li id="ref40"><b>Jeffrey Modell Diagnostic Center for Primary Immunodeficiencies l UH Rainbow</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://www.uhhospitals.org/rainbow/services/pediatric-allergy-and-immunology/conditions-and-treatments/jeffrey-modell-diagnostic-center-for-primary-immunodeficiencies" target="_blank" rel="noopener noreferrer">https://www.uhhospitals.org/rainbow/.../jeffrey-modell-diagnostic-center...</a></span></li>
+                    <li id="ref41"><b>Jeffrey Modell Center for Primary Immunodeficiencies | UCI Health</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://www.ucihealth.org/medical-services/allergy-immunology/immune-disorders-modell-center" target="_blank" rel="noopener noreferrer">https://www.ucihealth.org/medical-services/allergy-immunology/immune-disorders-modell-center</a></span></li>
+                    <li id="ref42"><b>Primary Immunodeficiencies | AAFP</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://www.aafp.org/pubs/afp/issues/2003/1115/p2001.html" target="_blank" rel="noopener noreferrer">https://www.aafp.org/pubs/afp/issues/2003/1115/p2001.html</a></span></li>
+                    <li id="ref43"><b>Types of PI | Immune Deficiency Foundation</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://primaryimmune.org/understanding-primary-immunodeficiency/types-of-pi" target="_blank" rel="noopener noreferrer">https://primaryimmune.org/understanding-primary-immunodeficiency/types-of-pi</a></span></li>
+                    <li id="ref44"><b>Lymphoproliferative disorders: What they are, symptoms, outlook - Medical News Today</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://www.medicalnewstoday.com/articles/lymphoproliferative-disorders" target="_blank" rel="noopener noreferrer">https://www.medicalnewstoday.com/articles/lymphoproliferative-disorders</a></span></li>
+                    <li id="ref45"><b>Lymphoproliferative Disorders: Pathogenesis, Classification, and Contemporary Management | RROIJ</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://www.rroij.com/open-access/lymphoproliferative-disorders-pathogenesis-classification-and-contemporary-management.php?aid=93588" target="_blank" rel="noopener noreferrer">https://www.rroij.com/open-access/lymphoproliferative-disorders...php?aid=93588</a></span></li>
+                    <li id="ref46"><b>X linked Lymphoproliferative Syndrome - NORD</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://rarediseases.org/rare-diseases/x-linked-lymphoproliferative-syndrome/" target="_blank" rel="noopener noreferrer">https://rarediseases.org/rare-diseases/x-linked-lymphoproliferative-syndrome/</a></span></li>
+                    <li id="ref47"><b>Primary immunodeficiencies: genetic risk factors for lymphoma - PubMed</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://pubmed.ncbi.nlm.nih.gov/1327508/" target="_blank" rel="noopener noreferrer">https://pubmed.ncbi.nlm.nih.gov/1327508/</a></span></li>
+                    <li id="ref48"><b>Immunodeficiency-associated lymphoproliferative disorders: time for reappraisal? | Blood</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://ashpublications.org/blood/article/132/18/1871/39601/Immunodeficiency-associated-lymphoproliferative" target="_blank" rel="noopener noreferrer">https://ashpublications.org/blood/article/132/18/1871/39601/...</a></span></li>
+                    <li id="ref49"><b>Primary Lymphoproliferative Lung Diseases: Imaging and Multidisciplinary Approach - MDPI</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://www.mdpi.com/2075-4418/13/7/1360" target="_blank" rel="noopener noreferrer">https://www.mdpi.com/2075-4418/13/7/1360</a></span></li>
+                    <li id="ref50"><b>Lymphadenopathy at the crossroad between immunodeficiency and autoinflammation... - Oxford Academic</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://academic.oup.com/cei/article/205/3/288/6431049" target="_blank" rel="noopener noreferrer">https://academic.oup.com/cei/article/205/3/288/6431049</a></span></li>
+                    <li id="ref51"><b>Immunodeficiency-associated lymphoproliferative disorders - PubMed</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://pubmed.ncbi.nlm.nih.gov/10071343/" target="_blank" rel="noopener noreferrer">https://pubmed.ncbi.nlm.nih.gov/10071343/</a></span></li>
+                    <li id="ref52"><b>Genetic Defects of Apoptosis and Primary Immunodeficiency - PMC</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC2671802/" target="_blank" rel="noopener noreferrer">https://pmc.ncbi.nlm.nih.gov/articles/PMC2671802/</a></span></li>
+                    <li id="ref53"><b>Immunodeficiency in adults a practical guide for the allergist - PMC</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC4479546/" target="_blank" rel="noopener noreferrer">https://pmc.ncbi.nlm.nih.gov/articles/PMC4479546/</a></span></li>
+                    <li id="ref54"><b>Practical Guidance for... Secondary Hypogammaglobulinemia... - ResearchGate</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://www.researchgate.net/publication/358592867_Practical_Guidance_for_the_Diagnosis_and_Management_of_Secondary_Hypogammaglobulinemia_A_Work_Group_Report_of_the_AAAAI_Primary_Immunodeficiency_and_Altered_Immune_Response_Committees" target="_blank" rel="noopener noreferrer">https://www.researchgate.net/publication/358592867...Committees</a></span></li>
+                    <li id="ref55"><b>Practical guidance for... secondary hypogammaglobulinemia... - AAAAI</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://www.aaaai.org/Aaaai/media/Media-Library-PDFs/Allergist%20Resources/Statements%20and%20Practice%20Parameters/Otani-et-al-JACI.pdf" target="_blank" rel="noopener noreferrer">https://www.aaaai.org/Aaaai/media/.../Otani-et-al-JACI.pdf</a></span></li>
+                    <li id="ref56"><b>Update on the use of immunoglobulin in human disease: A review of evidence - AAAAI</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://www.aaaai.org/Aaaai/media/MediaLibrary/PDF%20Documents/Practice%20and%20Parameters/IVIG-March-2017.pdf" target="_blank" rel="noopener noreferrer">https://www.aaaai.org/Aaaai/media/.../IVIG-March-2017.pdf</a></span></li>
+                    <li id="ref57"><b>Practice parameter for the diagnosis and management of primary immunodeficiency - AAAAI</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://www.aaaai.org/Aaaai/media/Media-Library-PDFs/Allergist%20Resources/Statements%20and%20Practice%20Parameters/PID-Nov-2015.pdf" target="_blank" rel="noopener noreferrer">https://www.aaaai.org/Aaaai/media/.../PID-Nov-2015.pdf</a></span></li>
+                    <li id="ref58"><b>Primary Immunodeficiency Disease | AAAAI</b>. <span class="access-date">Erişim: 5 Nis 2025.</span> <span class="reference-url"><a href="https://www.aaaai.org/conditions-treatments/primary-immunodeficiency" target="_blank" rel="noopener noreferrer">https://www.aaaai.org/conditions-treatments/primary-immunodeficiency</a></span></li>
+                 </ol>
+            </div>
+
+        </div> <div class="slide-controls">
+            <button id="prev-slide" class="slide-nav-button" title="Önceki Slayt (Sol Ok)" aria-label="Önceki Slayt">
+                <i class="fas fa-arrow-left"></i> Önceki
+            </button>
+            <div class="controls-center">
+                 <button id="toc-btn" class="control-button" title="İçindekiler (T)" aria-label="İçindekiler Tablosunu Aç">
+                     <i class="fas fa-list-ul"></i>
+                 </button>
+                 <button id="fullscreen-btn" class="control-button" title="Tam Ekran (F)" aria-label="Tam Ekran Modunu Aç/Kapat">
+                     <i class="fas fa-expand"></i>
+                 </button>
+                <div class="slide-indicator" aria-live="polite">
+                    <span id="current-slide-num">1</span> / <span id="total-slide-num">13</span>
+                </div>
+            </div>
+            <button id="next-slide" class="slide-nav-button" title="Sonraki Slayt (Sağ Ok/Boşluk)" aria-label="Sonraki Slayt">
+                Sonraki <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+    </div> <div id="toc-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="toc-title" hidden>
+        <div class="modal-content">
+            <button class="close-modal-btn" id="close-toc-btn" aria-label="İçindekiler Penceresini Kapat">&times;</button>
+            <h2 id="toc-title" style="margin-top:0; border-bottom: 2px solid var(--primary-color); padding-bottom: 0.5em;">İçindekiler</h2>
+            <nav aria-label="Sunum İçerik Tablosu">
+                 <ul id="toc-list">
+                    </ul>
+            </nav>
+        </div>
+    </div>
+
+
+    <script>
+        // --- Global Variables & DOM Elements ---
+        let currentSlideIndex = 0;
+        const slides = Array.from(document.querySelectorAll('.slide'));
+        const totalSlides = slides.length;
+        const referenceSlideIndex = slides.findIndex(slide => slide.id === 'reference-slide');
+
+        const prevButton = document.getElementById('prev-slide');
+        const nextButton = document.getElementById('next-slide');
+        const currentSlideNumSpan = document.getElementById('current-slide-num');
+        const totalSlideNumSpan = document.getElementById('total-slide-num');
+        const progressBar = document.getElementById('progressBar');
+        const fullscreenButton = document.getElementById('fullscreen-btn');
+        const presentationContainer = document.getElementById('presentationContainer');
+        const tocButton = document.getElementById('toc-btn');
+        const tocModal = document.getElementById('toc-modal');
+        const tocList = document.getElementById('toc-list');
+        const closeTocButton = document.getElementById('close-toc-btn');
+        const slideViewport = document.querySelector('.slides-viewport'); // For focus management
+
+        let highlightTimeoutIds = {};
+        const transitionDuration = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--slide-transition-duration') || '0.45') * 1000;
+        let lastFocusedElement = null; // To return focus after modal closes
+
+        // --- Core Functions ---
+        function updateProgressBar() {
+            const progress = totalSlides > 1 ? ((currentSlideIndex) / (totalSlides - 1)) * 100 : 0; // Progress based on content slides
+            progressBar.style.width = `${progress}%`;
+        }
+
+        function updateSlideIndicator() {
+             currentSlideNumSpan.textContent = currentSlideIndex + 1;
+             totalSlideNumSpan.textContent = totalSlides;
+        }
+
+        function updateNavButtons() {
+             prevButton.disabled = (currentSlideIndex === 0);
+             nextButton.disabled = (currentSlideIndex === totalSlides - 1);
+        }
+
+        function showSlide(index, isNavigation = false) {
+            if (index < 0 || index >= totalSlides || index === currentSlideIndex) return;
+
+            const exitingSlide = slides[currentSlideIndex];
+            const enteringSlide = slides[index];
+
+            // Ensure viewport is ready
+             if (!slideViewport) return;
+
+             slideViewport.style.pointerEvents = 'none'; // Disable clicks during transition
+
+            // Add exiting animation class
+            if (exitingSlide) {
+                 exitingSlide.classList.add('exiting');
+                 exitingSlide.classList.remove('active');
+                  // Remove exiting class after transition
+                 setTimeout(() => {
+                      if (exitingSlide) exitingSlide.classList.remove('exiting');
+                      slideViewport.style.pointerEvents = 'auto'; // Re-enable clicks
+                 }, transitionDuration);
+            } else {
+                // If no exiting slide (initial load maybe?), enable pointer events sooner
+                 setTimeout(() => {
+                     slideViewport.style.pointerEvents = 'auto';
+                 }, transitionDuration);
+            }
+
+            // Add active class to entering slide
+            enteringSlide.classList.add('active');
+            currentSlideIndex = index;
+
+            updateNavButtons();
+            updateSlideIndicator();
+            updateProgressBar();
+
+            // Scroll to top of the new slide
+            enteringSlide.scrollTop = 0;
+
+             // Manage focus for accessibility if navigated intentionally
+             if (isNavigation) {
+                  // Set focus to the slide itself (or a specific element within)
+                 enteringSlide.setAttribute('tabindex', '-1');
+                 enteringSlide.focus({ preventScroll: true }); // Prevent page scroll on focus
+             }
+        }
+
+        function nextSlide() { showSlide(currentSlideIndex + 1, true); }
+        function prevSlide() { showSlide(currentSlideIndex - 1, true); }
+
+        function clearHighlights() {
+            for (const id in highlightTimeoutIds) {
+                clearTimeout(highlightTimeoutIds[id]);
+                const el = document.getElementById(id);
+                if (el) el.classList.remove('highlighted-ref');
+            }
+            highlightTimeoutIds = {};
+        }
+
+        function scrollToRefAndHighlight(refId) {
+            clearHighlights();
+            const targetSlideIndex = referenceSlideIndex;
+
+            const navigateFirst = currentSlideIndex !== targetSlideIndex;
+            if (navigateFirst) {
+                showSlide(targetSlideIndex, true); // Mark as navigation
+            }
+
+            // Wait slightly longer than transition duration before scrolling
+            setTimeout(() => {
+                const element = document.getElementById(refId);
+                const refSlideElement = document.getElementById('reference-slide');
+
+                if (element && refSlideElement) {
+                    const elementRect = element.getBoundingClientRect();
+                    const slideRect = refSlideElement.getBoundingClientRect();
+                    const scrollTop = refSlideElement.scrollTop + elementRect.top - slideRect.top - 40; // More offset
+
+                    refSlideElement.scrollTo({ top: scrollTop, behavior: 'smooth' });
+
+                    element.classList.add('highlighted-ref');
+                    // Set focus to the highlighted element for screen readers
+                    element.setAttribute('tabindex', '-1');
+                    element.focus({ preventScroll: true });
+
+                    highlightTimeoutIds[refId] = setTimeout(() => {
+                        if (element) {
+                            element.classList.remove('highlighted-ref');
+                            element.removeAttribute('tabindex'); // Clean up tabindex
+                        }
+                        delete highlightTimeoutIds[refId];
+                    }, 4000); // Longer highlight
+
+                } else {
+                    console.warn("Ref element/slide not found:", refId);
+                }
+            }, navigateFirst ? transitionDuration + 150 : 150);
+
+            return false;
+        }
+
+        // --- Table of Contents ---
+        function generateToc() {
+             tocList.innerHTML = '';
+             slides.forEach((slide, index) => {
+                 const titleElement = slide.querySelector('h1, h2');
+                 // Create a more descriptive title if possible
+                 let titleText = `Slayt ${index + 1}`;
+                 if (titleElement) {
+                      // Remove potential leading icon/number before extracting text
+                     const clonedTitle = titleElement.cloneNode(true);
+                     const icon = clonedTitle.querySelector('i');
+                     if (icon) icon.remove();
+                      titleText = clonedTitle.textContent.trim().split(':').pop().trim();
+                      if (!titleText || titleText.length < 3) { // Fallback if only icon/number was present
+                          titleText = slide.getAttribute('aria-label') || `Slayt ${index + 1}`;
+                      }
+                 } else {
+                      titleText = slide.getAttribute('aria-label') || `Slayt ${index + 1}`;
+                 }
+
+                 const slideId = slide.id || `slide-${index}`;
+                 if (slide.id === 'reference-slide') return;
+
+                 const li = document.createElement('li');
+                 const link = document.createElement('a');
+                 link.href = `#${slideId}`;
+                 link.classList.add('toc-link');
+                 link.onclick = (e) => {
+                     e.preventDefault();
+                     showSlide(index, true); // Mark as navigation
+                     closeTocModal();
+                 };
+
+                  const icon = document.createElement('i');
+                  // Assign icons based on slide content maybe?
+                  if (index === 0) icon.className = 'fas fa-star'; // Title
+                  else if (slide.querySelector('table')) icon.className = 'fas fa-table'; // Table slide
+                  else if (slide.id === 'reference-slide') icon.className = 'fas fa-book'; // Refs
+                  else icon.className = 'fas fa-chevron-right'; // Default
+
+                 link.appendChild(icon);
+                 link.appendChild(document.createTextNode(` ${index + 1}. ${titleText}`));
+
+                 li.appendChild(link);
+                 tocList.appendChild(li);
+             });
+        }
+
+        function openTocModal() {
+             lastFocusedElement = document.activeElement; // Store focus
+             tocModal.removeAttribute('hidden');
+             tocModal.classList.add('show');
+             // Focus the first focusable element in the modal (the close button or first link)
+             (tocList.querySelector('.toc-link') || closeTocButton).focus();
+        }
+
+        function closeTocModal() {
+             tocModal.classList.remove('show');
+             // Use setTimeout to allow fade-out animation before hiding
+             setTimeout(() => {
+                 tocModal.setAttribute('hidden', 'true');
+                  // Return focus to the element that opened the modal
+                 if(lastFocusedElement) lastFocusedElement.focus();
+             }, 300); // Match modal transition duration
+        }
+
+         // Trap focus inside modal (basic implementation)
+         const focusableElementsString = 'a[href], button:not([disabled]), textarea, input, select';
+         let firstFocusableElement, lastFocusableElement;
+
+         tocModal.addEventListener('keydown', (e) => {
+             if (e.key !== 'Tab') return;
+
+             const focusableElements = tocModal.querySelectorAll(focusableElementsString);
+             firstFocusableElement = focusableElements[0];
+             lastFocusableElement = focusableElements[focusableElements.length - 1];
+
+             if (e.shiftKey) { // Shift + Tab
+                 if (document.activeElement === firstFocusableElement) {
+                     lastFocusableElement.focus();
+                     e.preventDefault();
+                 }
+             } else { // Tab
+                 if (document.activeElement === lastFocusableElement) {
+                     firstFocusableElement.focus();
+                     e.preventDefault();
+                 }
+             }
+         });
+
+
+        // --- Fullscreen ---
+        function toggleFullScreen() {
+            const element = presentationContainer;
+            try {
+                 if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
+                    const requestMethod = element.requestFullscreen || element.webkitRequestFullscreen || element.msRequestFullscreen;
+                    if (requestMethod) {
+                         requestMethod.call(element).then(() => {
+                              fullscreenButton.innerHTML = '<i class="fas fa-compress"></i>';
+                              fullscreenButton.setAttribute('aria-label', 'Tam Ekrandan Çık');
+                         }).catch(err => {
+                              console.error(`Fullscreen request failed: ${err.message} (${err.name})`);
+                         });
+                    }
+                 } else {
+                    const exitMethod = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
+                    if (exitMethod) {
+                         exitMethod.call(document).then(() => {
+                              fullscreenButton.innerHTML = '<i class="fas fa-expand"></i>';
+                              fullscreenButton.setAttribute('aria-label', 'Tam Ekran Modunu Aç/Kapat');
+                         }).catch(err => {
+                              console.error(`Exit fullscreen failed: ${err.message} (${err.name})`);
+                         });
+                    }
+                 }
+            } catch (e) {
+                 console.error("Fullscreen API error:", e);
+            }
+        }
+
+        // --- Event Listeners ---
+        prevButton.addEventListener('click', prevSlide);
+        nextButton.addEventListener('click', nextSlide);
+        tocButton.addEventListener('click', openTocModal);
+        closeTocButton.addEventListener('click', closeTocModal);
+        fullscreenButton.addEventListener('click', toggleFullScreen);
+
+        tocModal.addEventListener('click', (event) => { if (event.target === tocModal) closeTocModal(); });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') return;
+            if (tocModal.classList.contains('show')) {
+                 if (event.key === 'Escape') closeTocModal();
+                 return; // Don't process navigation keys if modal is open
+            }
+
+            if (event.key === 'ArrowRight' || event.key === 'PageDown' || event.key === ' ') { event.preventDefault(); nextSlide(); }
+            else if (event.key === 'ArrowLeft' || event.key === 'PageUp' || event.key === 'Backspace') { event.preventDefault(); prevSlide(); }
+            else if (event.key === 'f' || event.key === 'F') { event.preventDefault(); toggleFullScreen(); }
+            else if (event.key === 'Home') { event.preventDefault(); showSlide(0, true); }
+            else if (event.key === 'End') { event.preventDefault(); showSlide(totalSlides - 1, true); }
+            else if (event.key === 't' || event.key === 'T') { event.preventDefault(); openTocModal(); }
+        });
+
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
+                 fullscreenButton.innerHTML = '<i class="fas fa-expand"></i>';
+                 fullscreenButton.setAttribute('aria-label', 'Tam Ekran Modunu Aç/Kapat');
+            }
+        });
+
+        // --- Initial setup ---
+        generateToc();
+        showSlide(0); // Show the first slide initially
+
+    </script>
+
+</body>
+</html>
