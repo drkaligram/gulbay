@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SciFlow - Bilimsel Çalışmalarınız İçin Dinamik HTML Sunumlar</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+        :root {
+            --primary-color: #005A9C; /* Ana Mavi */
+            --secondary-color: #00A1E4; /* Açık Mavi */
+            --dark-color: #333;
+            --light-color: #f8f9fa;
+            --white-color: #ffffff;
+            --grey-color: #6c757d;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.7;
+            color: var(--dark-color);
+            background-color: var(--white-color);
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: auto;
+            padding: 0 20px;
+            overflow: hidden; /* İçerik taşmasını önlemek için */
+        }
+
+        header {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            color: var(--white-color);
+            padding: 60px 0;
+            text-align: center;
+            border-bottom-left-radius: var(--border-radius);
+            border-bottom-right-radius: var(--border-radius);
+            margin-bottom: 40px;
+            box-shadow: var(--box-shadow);
+        }
+
+        header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+         header .brand-logo {
+            font-size: 3.5rem; /* Logo için daha büyük */
+            font-weight: 700;
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+            /* İsteğe bağlı: Hafif bir metin gölgesi */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+
+        header p {
+            font-size: 1.3rem;
+            font-weight: 300;
+        }
+
+        section {
+            padding: 40px 0;
+            margin-bottom: 30px;
+        }
+
+        section h2 {
+            font-size: 2.2rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative; /* Çizgi için */
+        }
+
+        /* Başlık altına ince çizgi */
+        section h2::after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 3px;
+            background-color: var(--secondary-color);
+            margin: 10px auto 0;
+            border-radius: 2px;
+        }
+
+        .problem-solution {
+            background-color: var(--light-color);
+            padding: 50px 0;
+            border-radius: var(--border-radius);
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.05); /* İç gölge */
+        }
+
+        .problem-solution .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .problem-solution h3 {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .features ul {
+            list-style: none;
+            padding: 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Responsive grid */
+            gap: 30px;
+        }
+
+        .features li {
+            background-color: var(--white-color);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-left: 5px solid var(--secondary-color); /* Sol kenar vurgusu */
+        }
+
+        .features li:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .features li strong {
+            font-weight: 600;
+            color: var(--primary-color);
+            display: block;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+         /* Özellikler için ikonlar (Örnek: Font Awesome gerektirmez, basit CSS ile) */
+        .features li::before {
+            content: '✓'; /* Basit bir tik işareti */
+            color: var(--secondary-color);
+            font-weight: bold;
+            display: inline-block;
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+
+
+        .target-audience {
+            text-align: center;
+            background-color: var(--primary-color);
+            color: var(--white-color);
+            padding: 40px 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+         .target-audience h2 {
+             color: var(--white-color); /* Başlık rengini beyaz yap */
+         }
+         .target-audience h2::after {
+             background-color: var(--white-color); /* Çizgiyi beyaz yap */
+         }
+
+
+        .target-audience p {
+            max-width: 800px;
+            margin: 0 auto;
+            font-size: 1.1rem;
+            font-weight: 300;
+        }
+
+        .why-us ul {
+             list-style: none;
+             padding: 0;
+             max-width: 800px;
+             margin: 20px auto 0;
+        }
+
+        .why-us li {
+            margin-bottom: 10px;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .why-us li::before {
+            content: '⭐'; /* Yıldız ikonu */
+            position: absolute;
+            left: 0;
+            top: 0px; /* Dikey hizalama */
+            color: var(--secondary-color); /* İkon rengi */
+            font-size: 1.1em;
+        }
+
+        .cta {
+            text-align: center;
+            padding: 50px 0;
+        }
+
+        .cta h2 {
+            margin-bottom: 20px;
+        }
+
+        .cta p {
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            color: var(--grey-color);
+        }
+
+        .cta-button {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: var(--white-color);
+            padding: 15px 35px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-decoration: none;
+            border-radius: var(--border-radius);
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 90, 156, 0.4);
+        }
+
+        .cta-button:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 161, 228, 0.5);
+        }
+
+        footer {
+            background-color: var(--dark-color);
+            color: var(--light-color);
+            text-align: center;
+            padding: 30px 0;
+            margin-top: 40px;
+        }
+
+        footer p {
+            margin-bottom: 10px;
+        }
+
+        footer a {
+            color: var(--secondary-color);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        footer a:hover {
+            color: var(--white-color);
+        }
+
+        /* Responsive Ayarlamalar */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2.5rem;
+            }
+            header p {
+                font-size: 1.1rem;
+            }
+             header .brand-logo {
+                 font-size: 2.8rem;
+             }
+
+            section h2 {
+                font-size: 1.8rem;
+            }
+
+            .problem-solution .content {
+                grid-template-columns: 1fr; /* Tek sütun */
+            }
+
+            .features ul {
+                 grid-template-columns: 1fr; /* Mobil için tek sütun */
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container">
+             <div class="brand-logo">SciFlow</div>
+            <h1>Bilimsel Çalışmalarınız Dijital Dünyada Hayat Bulsun</h1>
+            <p>Tıbbi Araştırmalarınız İçin Etkileşimli, Erişilebilir ve Modern HTML Sunumlar</p>
+        </div>
+    </header>
+
+    <main>
+        <section class="problem-solution">
+            <div class="container content">
+                <div class="problem">
+                    <h3>Geleneksel Sunumların Sınırları</h3>
+                    <p>Yoğun araştırmalarınız ve değerli bulgularınız statik PDF'lerde veya tekdüze slaytlarda mı kayboluyor? Meslektaşlarınızla ve daha geniş kitlelerle etkili bir şekilde paylaşmakta, verilerinizi canlı ve anlaşılır kılmakta zorlanıyor musunuz? Sunum hazırlamak değerli zamanınızdan mı çalıyor?</p>
+                </div>
+                <div class="solution">
+                    <h3>Çözüm: SciFlow ile Tanışın!</h3>
+                    <p>SciFlow, bilimsel içeriğinizi etkileşimli, modern ve her platformdan erişilebilir dinamik HTML sunumlara dönüştürür. Bilginin akışını hızlandırın, çalışmalarınızın etkisini artırın ve sunum hazırlama yükünü bize bırakarak araştırmalarınıza odaklanın.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="features">
+            <div class="container">
+                <h2>Neden SciFlow? Temel Avantajlar</h2>
+                <ul>
+                    <li>
+                        <strong>Etkileşimli Deneyim</strong>
+                        Verilerinizi interaktif grafikler, tablolar ve animasyonlarla canlandırın. Okuyucuların/dinleyicilerin içeriğinizle doğrudan etkileşime geçmesini sağlayın.
+                    </li>
+                    <li>
+                        <strong>Evrensel Erişilebilirlik</strong>
+                        Sunumlarınıza her cihazdan (PC, tablet, mobil) kolayca erişilsin. Tek bir link ile çalışmalarınızı anında paylaşın.
+                    </li>
+                    <li>
+                        <strong>Profesyonel ve Estetik Tasarım</strong>
+                        Alanınıza özel, şık, anlaşılır ve modern tasarımlarla karmaşık bilgileri bile net bir şekilde sunun. Kurumsal kimliğinizi yansıtın.
+                    </li>
+                    <li>
+                        <strong>Zaman ve Kaynak Tasarrufu</strong>
+                        Sunum formatlama ve tasarım yükünü üzerinizden alalım. Dijital formatla baskı maliyetlerini ortadan kaldırın.
+                    </li>
+                     <li>
+                        <strong>Kolay Güncelleme</strong>
+                        Çalışmalarınızdaki yenilikleri veya revizyonları mevcut sunumlarınıza hızla entegre edin. İçeriğiniz her zaman güncel kalsın.
+                    </li>
+                     <li>
+                        <strong>Geniş Kitlelere Ulaşım</strong>
+                        Çalışmalarınızı konferans salonlarının ötesine taşıyın. Online platformlarda, web sitenizde veya sosyal medyada kolayca yayınlayın.
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="target-audience">
+            <div class="container">
+                <h2>Özellikle Kimler İçin?</h2>
+                <p>SciFlow, başta Tıp Fakülteleri, Araştırma Hastaneleri ve Enstitülerdeki akademisyenler, araştırmacılar, hekimler, uzmanlık öğrencileri ve bilimsel etkinlik düzenleyicileri olmak üzere, bilimsel bulgularını en etkili şekilde sunmak isteyen herkes için tasarlanmıştır.</p>
+                 <div class="why-us">
+                     <h2>SciFlow'u Seçmek İçin Nedenleriniz</h2>
+                     <ul>
+                        <li><strong>Tıp Odaklı Yaklaşım:</strong> Tıbbi verilerin hassasiyetini ve terminolojiyi anlayan bir ekiple çalışın.</li>
+                        <li><strong>Gizlilik ve Güvenlik:</strong> Araştırmalarınızın gizliliği bizim için esastır.</li>
+                        <li><strong>Hız ve Verimlilik:</strong> Çalışmanızı bize iletin, etkileyici sunumunuzu hızla teslim alın.</li>
+                        <li><strong>Tam Destek:</strong> Sunumlarınızın kullanımı ve paylaşımı konusunda size destek olalım.</li>
+                     </ul>
+                 </div>
+            </div>
+        </section>
+
+        <section class="cta">
+            <div class="container">
+                <h2>Bilginin Akışını Hızlandırmaya Hazır mısınız?</h2>
+                <p>Çalışmalarınızı SciFlow ile nasıl dönüştürebileceğimizi öğrenmek ve size özel çözümlerimiz hakkında bilgi almak için bizimle iletişime geçin.</p>
+                <a href="mailto:[E-posta Adresiniz]" class="cta-button">Teklif Alın / Demo İsteyin</a>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; <span id="currentYear"></span> SciFlow - Tüm Hakları Saklıdır.</p>
+            <p>
+                <a href="[Web Sitenizin Adresi]">Web Sitemiz</a> |
+                <a href="mailto:[E-posta Adresiniz]">E-posta</a> |
+                <a href="tel:[Telefon Numaranız]">Telefon</a>
+                 </p>
+        </div>
+    </footer>
+
+    <script>
+        // Yılı otomatik güncellemek için basit bir script
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+    </script>
+
+</body>
+</html>
